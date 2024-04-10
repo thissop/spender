@@ -14,7 +14,6 @@ from torchinterp1d import interp1d
 from ..instrument import Instrument, get_skyline_mask
 from ..util import BatchedFilesDataset, load_batch
 
-
 class SDSS(Instrument):
     """SDSS instrument
 
@@ -44,7 +43,7 @@ class SDSS(Instrument):
         dir,
         which=None,
         tag=None,
-        batch_size=1024,
+        batch_size=8,
         shuffle=False,
         shuffle_instance=False,
     ):
@@ -149,7 +148,7 @@ class SDSS(Instrument):
             pickle.dump(batch, f)
 
     @classmethod
-    def save_in_batches(cls, dir, ids, tag=None, batch_size=1024):
+    def save_in_batches(cls, dir, ids, tag=None, batch_size=8):
         """Save all spectra for given ids into batch files
 
         Parameters
@@ -214,7 +213,7 @@ class SDSS(Instrument):
 
         if return_file:
             return flocal
-        return cls.prepare_spectrum(flocal)
+        return cls.prepare_spectrum_(flocal) # switch this line with my custom prepare_spectrum_() function
 
     @classmethod
     def get_image(cls, dir, plate, mjd, fiberid, return_file=False):
@@ -340,6 +339,7 @@ class SDSS(Instrument):
         w[start:end] = torch.from_numpy(ivar.astype(np.float32))
 
         # remove regions around skylines
+        
         w[cls._skyline_mask] = 0
 
         extended_return = False
@@ -356,6 +356,71 @@ class SDSS(Instrument):
         wave_rest = cls._wave_obs / (1 + z)
         # flatish region that is well observed out to z ~ 0.5
         sel = (w > 0) & (wave_rest > 5300) & (wave_rest < 5850)
+        if sel.count_nonzero() == 0: norm = torch.tensor(0)
+        else: norm = torch.median(spec[sel])
+        # remove spectra (from training) for which no valid norm could be found
+        if not torch.isfinite(norm):
+            norm = 0
+        else:
+            spec /= norm
+        w *= norm**2
+
+        if extended_return:
+            return spec, w, norm, z, zerr
+        return spec, w, norm
+    
+    @classmethod
+    def prepare_spectrum_(cls, filename, z=None):
+        """Prepare spectrum for analysis
+
+        differences: 
+            - different rest wavelength range for calculating norm
+
+        """
+        hdulist = fits.open(filename)
+        data = hdulist[1].data
+        loglam = data["loglam"]
+        flux = data["flux"]
+        ivar = data["ivar"]
+
+        # apply bitmask, remove small values
+        mask = data["and_mask"].astype(bool) | (ivar <= 1e-6)
+        ivar[mask] = 0
+
+        # loglam is subset of _wave_obs, need to insert into extended tensor
+        L = len(cls._wave_obs)
+        start = int(np.around((loglam[0] - torch.log10(cls._wave_obs[0]).item())/0.0001))
+        if start<0:
+            flux = flux[-start:]
+            ivar = ivar[-start:]
+            end = min(start+len(loglam), L)
+            start = 0
+        else:
+            end = min(start+len(loglam), L)
+        spec = torch.zeros(L)
+        w = torch.zeros(L)
+        # explicit type conversion to float32 to get to little endian
+        spec[start:end]  = torch.from_numpy(flux.astype(np.float32))
+        w[start:end] = torch.from_numpy(ivar.astype(np.float32))
+
+        # remove regions around skylines
+        
+        w[cls._skyline_mask] = 0
+
+        extended_return = False
+        if z is None:
+            # get plate, mjd, fiberid info
+            specinfo = hdulist[2].data[0]
+            # get redshift and error
+            z = torch.tensor(specinfo["Z"])
+            zerr = torch.tensor(specinfo["Z_ERR"])
+            extended_return = True
+
+        # normalize spectrum:
+        # for redshift invariant encoder: select norm window in restframe
+        wave_rest = cls._wave_obs / (1 + z)
+        # flatish region 
+        sel = (w > 0) & (wave_rest > 2000) & (wave_rest < 2500)
         if sel.count_nonzero() == 0: norm = torch.tensor(0)
         else: norm = torch.median(spec[sel])
         # remove spectra (from training) for which no valid norm could be found
@@ -406,12 +471,12 @@ class SDSS(Instrument):
             if len(fields[i]) == 5:
                 plate, mjd, fiberid, z_, zerr_ = fields[i]
                 f = cls.get_spectrum(dir, plate, mjd, fiberid, return_file=True)
-                spec[i], w[i], norm[i] = cls.prepare_spectrum(f, z_)
+                spec[i], w[i], norm[i] = cls.prepare_spectrum_(f, z_)
                 z[i], zerr[i] = z_, zerr_
             elif len(fields[i]) == 3:
                 plate, mjd, fiberid = fields[i]
                 f = cls.get_spectrum(dir, plate, mjd, fiberid, return_file=True)
-                spec[i], w[i], norm[i], z[i], zerr[i] = cls.prepare_spectrum(f)
+                spec[i], w[i], norm[i], z[i], zerr[i] = cls.prepare_spectrum_(f)
             else:
                 raise AttributeError("fields must contain (plate, mjd, fiberid, z, z_err) or (plate, mjd, fiberid)")
             id[i] = torch.tensor((plate, mjd, fiberid), dtype=torch.int)
@@ -546,12 +611,14 @@ class SDSS(Instrument):
 
         return spec_new, w_new, z_new
 
-
 class BOSS(SDSS):
     """BOSS instrument
 
     This is a variant of :class:`SDSS` with a different observed wavelength vector and
     data archive URL.
+
+    Note: something to do later with my modification of their library would be to incorporate my prepare_spectrum_() for BOSS to be a boss method that supercedes the SDSS one. 
+
     """
 
     _wave_obs = 10 ** torch.arange(3.549, 4.0175, 0.0001)

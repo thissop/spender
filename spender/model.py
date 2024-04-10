@@ -125,7 +125,7 @@ class SpectrumEncoder(nn.Module):
 
         # pools and softmax work for spectra and weights
         self.pool1, self.pool2 = tuple(
-            nn.MaxPool1d(s, padding=s // 2) for s in sizes[:2]
+            nn.MaxPool1d(s, padding= s // 2) for s in sizes[:2]
         )
         self.softmax = nn.Softmax(dim=-1)
 

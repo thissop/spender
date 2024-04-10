@@ -410,7 +410,10 @@ if __name__ == "__main__":
 
     # get augmentation function
     if args.augmentation:
-        aug_fcts = [ SDSS.augment_spectra, BOSS.augment_spectra ]
+        
+        raise Exception("I DO NOT WANT AUGMENTATION!")
+        
+        #aug_fcts = [ SDSS.augment_spectra, BOSS.augment_spectra ]
     else:
         aug_fcts = [ None,None ]
 

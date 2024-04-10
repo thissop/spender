@@ -114,8 +114,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("dir", help="data file directory")
     parser.add_argument("outfile", help="output file name")
-    parser.add_argument("-n", "--latents", help="latent dimensionality", type=int, default=2)
-    parser.add_argument("-b", "--batch_size", help="batch size", type=int, default=1024)
+    parser.add_argument("-n", "--latents", help="latent dimensionality", type=int, default=6)
+    parser.add_argument("-b", "--batch_size", help="batch size", type=int, default=8) #1024
     parser.add_argument("-l", "--batch_number", help="number of batches per epoch", type=int, default=None)
     parser.add_argument("-e", "--epochs", help="number of epochs", type=int, default=200)
     parser.add_argument("-r", "--rate", help="learning rate", type=float, default=1e-3)
@@ -133,18 +133,18 @@ if __name__ == "__main__":
         lsf = None
 
     # define SDSS instrument
-    instrument = SDSS(lsf=lsf)
+    instrument = SDSS(lsf=lsf) # SDSS(lsf=lsf)
 
     # restframe wavelength for reconstructed spectra
-    z_max = 0.5
+    z_max = 2.0 # 0.5
     lmbda_min = instrument.wave_obs.min()/(1+z_max)
     lmbda_max = instrument.wave_obs.max()
     bins = args.superresolution * int(instrument.wave_obs.shape[0] * (1 + z_max))
     wave_rest = torch.linspace(lmbda_min, lmbda_max, bins, dtype=torch.float32)
 
     # data loaders
-    trainloader = SDSS.get_data_loader(args.dir, tag="variable", which="train", batch_size=args.batch_size, shuffle=True)
-    validloader = SDSS.get_data_loader(args.dir, tag="variable", which="valid", batch_size=args.batch_size)
+    trainloader = SDSS.get_data_loader(args.dir, tag="variable", which="train", batch_size=args.batch_size, shuffle=True) # SDSS
+    validloader = SDSS.get_data_loader(args.dir, tag="variable", which="valid", batch_size=args.batch_size) # SDSS
 
     if args.verbose:
         print ("Observed frame:\t{:.0f} .. {:.0f} A ({} bins)".format(instrument.wave_obs.min(), instrument.wave_obs.max(), len(instrument.wave_obs)))
@@ -168,3 +168,5 @@ if __name__ == "__main__":
         model, losses = load_model(args.outfile, model, instrument)
 
     train(model, instrument, trainloader, validloader, n_epoch=args.epochs, n_batch=args.batch_number, outfile=args.outfile, losses=losses, lr=args.rate, verbose=args.verbose)
+
+
