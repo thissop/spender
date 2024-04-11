@@ -1,3 +1,33 @@
 # train_sdss.py
 - changed z_max from 0.5 to 2.0 
-- added default data dir 
+- changed tags in data loader functions to train and valid. 
+```
+trainloader = SDSS.get_data_loader(args.dir, tag="train", which="train",
+validloader = SDSS.get_data_loader(args.dir, tag="valid", which="valid",
+```
+
+# util.py
+- 
+
+# sdss.py 
+- temporarily named classname to BOSS 
+```
+classname = cls.__mro__[0].__name__
+filename = f"{classname}{tag}_*.pkl"
+```
+
+- changed how `batch_files` is found
+```
+#batch_files = glob.glob(dir + "/" + filename)
+batch_files = []
+
+for pickle_file in os.listdir(dir):
+    if pickle_file.split('_')[0] == f'{classname}{tag}' and pickle_file.split('.')[-1] = '.pkl':
+        batch_files.append(os.path.join(dir, pickle_file))
+```
+
+- changed it just to return batches 
+
+```
+accelerator = Accelerator(mixed_precision='fp16', cpu=True) # changed cpu to True?
+```

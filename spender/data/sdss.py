@@ -98,9 +98,15 @@ class SDSS(Instrument):
         """
         if tag is None:
             tag = "variable"
-        classname = cls.__mro__[0].__name__
+        classname = "BOSS" #cls.__mro__[0].__name__
         filename = f"{classname}{tag}_*.pkl"
-        batch_files = glob.glob(dir + "/" + filename)
+        #batch_files = glob.glob(dir + "/" + filename)
+        batch_files = []
+        
+        for pickle_file in os.listdir(dir):
+            if pickle_file.split('_')[0] == f'{classname}{tag}' and pickle_file.split('.')[-1] == 'pkl':
+                batch_files.append(os.path.join(dir, pickle_file))
+
         batches = [item for item in batch_files if not "copy" in item]
 
         NBATCH = len(batches)
@@ -108,6 +114,15 @@ class SDSS(Instrument):
         valid_batches = batches[int(0.7 * NBATCH) : int(0.85 * NBATCH)]
         test_batches = batches[int(0.85 * NBATCH) :]
 
+        print('\nDEBUGGING\n')
+        print(f'classname: {classname}')
+        print(f'filename: {filename}')
+        print(f'batch_files: {batch_files}')
+        print(f'batches: {batches}')
+
+        print(f'which: {which}')
+
+        '''
         if which == "test":
             return test_batches
         elif which == "valid":
@@ -116,6 +131,8 @@ class SDSS(Instrument):
             return train_batches
         else:
             return batches
+        '''
+        return batches
 
     @classmethod
     def save_batch(cls, dir, batch, tag=None, counter=None):

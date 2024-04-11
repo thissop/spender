@@ -130,3 +130,5 @@ dmypy.json
 
 # Pytorch models
 *.pt
+
+**/.DS_Store

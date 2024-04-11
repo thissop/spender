@@ -37,7 +37,7 @@ def train(model, instrument, trainloader, validloader, n_epoch=200, n_batch=None
     optimizer = optim.Adam(model.parameters(), lr=lr)
     scheduler = optim.lr_scheduler.OneCycleLR(optimizer, lr, total_steps=n_epoch)
 
-    accelerator = Accelerator(mixed_precision='fp16')
+    accelerator = Accelerator(mixed_precision='fp16') # change cpu to True?
     model, instrument, trainloader, validloader, optimizer = accelerator.prepare(model, instrument, trainloader, validloader, optimizer)
 
     if outfile is None:
@@ -143,8 +143,8 @@ if __name__ == "__main__":
     wave_rest = torch.linspace(lmbda_min, lmbda_max, bins, dtype=torch.float32)
 
     # data loaders
-    trainloader = SDSS.get_data_loader(args.dir, tag="variable", which="train", batch_size=args.batch_size, shuffle=True) # SDSS
-    validloader = SDSS.get_data_loader(args.dir, tag="variable", which="valid", batch_size=args.batch_size) # SDSS
+    trainloader = SDSS.get_data_loader(args.dir, tag="train", which="train", batch_size=args.batch_size, shuffle=True) # SDSS
+    validloader = SDSS.get_data_loader(args.dir, tag="valid", which="valid", batch_size=args.batch_size) # SDSS
 
     if args.verbose:
         print ("Observed frame:\t{:.0f} .. {:.0f} A ({} bins)".format(instrument.wave_obs.min(), instrument.wave_obs.max(), len(instrument.wave_obs)))
@@ -169,4 +169,4 @@ if __name__ == "__main__":
 
     train(model, instrument, trainloader, validloader, n_epoch=args.epochs, n_batch=args.batch_number, outfile=args.outfile, losses=losses, lr=args.rate, verbose=args.verbose)
 
-
+# python train_sdss.py --dir='/Users/yaroslav/Documents/2. work/Research/GitHub/spender/train' --outfile='/Users/yaroslav/Documents/2. work/Research/GitHub/spender/train/checkpoint.pt'
