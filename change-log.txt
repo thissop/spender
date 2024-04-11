@@ -29,5 +29,5 @@ for pickle_file in os.listdir(dir):
 - changed it just to return batches 
 
 ```
-accelerator = Accelerator(mixed_precision='fp16', cpu=True) # changed cpu to True?
+accelerator = Accelerator(mixed_precision='fp16', cpu=True) # changed cpu to True? --> i reverted to having cpu=False
 ```

@@ -543,6 +543,7 @@ class BaseAutoencoder(nn.Module):
         -------
         float or `torch.tensor`, shape (N,) of weighted MSE loss
         """
+
         y_ = self.forward(y, instrument=instrument, z=z, s=s, normalize=normalize)
         return self._loss(y, w, y_, individual=individual)
 

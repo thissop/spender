@@ -114,14 +114,6 @@ class SDSS(Instrument):
         valid_batches = batches[int(0.7 * NBATCH) : int(0.85 * NBATCH)]
         test_batches = batches[int(0.85 * NBATCH) :]
 
-        print('\nDEBUGGING\n')
-        print(f'classname: {classname}')
-        print(f'filename: {filename}')
-        print(f'batch_files: {batch_files}')
-        print(f'batches: {batches}')
-
-        print(f'which: {which}')
-
         '''
         if which == "test":
             return test_batches
@@ -132,6 +124,7 @@ class SDSS(Instrument):
         else:
             return batches
         '''
+        
         return batches
 
     @classmethod
