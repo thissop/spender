@@ -38,8 +38,8 @@ def train(model, instrument, trainloader, validloader, n_epoch=200, n_batch=None
 
 
     # removing accelerator for a test 
-    #accelerator = Accelerator(mixed_precision='fp16', cpu=True) # change cpu to True? --> trying to get mps to work so not yet. 
-    #model, instrument, trainloader, validloader, optimizer = accelerator.prepare(model, instrument, trainloader, validloader, optimizer)
+    accelerator = Accelerator(mixed_precision='fp16', cpu=True) # change cpu to True? --> trying to get mps to work so not yet. 
+    model, instrument, trainloader, validloader, optimizer = accelerator.prepare(model, instrument, trainloader, validloader, optimizer)
 
     # device is confirmed on cpu (confirmed)
 
@@ -108,14 +108,22 @@ def train(model, instrument, trainloader, validloader, n_epoch=200, n_batch=None
 
             # reminds me of xspec install. 
 
-            '''
             accelerator.backward(loss) # update: accelerator is likely not the one to blame...dataset is pretty small, so probably not a memory issue? 
             print('made it past accelerator.backward(loss)')
             quit()
-            '''
+
+
+            #print('about to backpropogate')
             
-            loss.backward()
-            optimizer.step()
+            #loss.backward()
+
+            #print('about to step optimizer')
+
+            #optimizer.step()
+
+            print('was able to backpropogate!')
+
+            quit()
 
             train_loss += loss.item()
             n_sample += batch_size
