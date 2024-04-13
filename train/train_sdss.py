@@ -38,7 +38,7 @@ def train(model, instrument, trainloader, validloader, n_epoch=200, n_batch=None
 
 
     # removing accelerator for a test 
-    accelerator = Accelerator(mixed_precision='fp16', cpu=True) # change cpu to True? --> trying to get mps to work so not yet. 
+    accelerator = Accelerator(mixed_precision='fp16') # change cpu to True? --> trying to get mps to work so not yet --> turned cpu off for ginsberg test 
     model, instrument, trainloader, validloader, optimizer = accelerator.prepare(model, instrument, trainloader, validloader, optimizer)
 
     # device is confirmed on cpu (confirmed)
@@ -78,20 +78,20 @@ def train(model, instrument, trainloader, validloader, n_epoch=200, n_batch=None
             quit()
             '''
 
-            print('made it to line 79 in train_sdss.py')
+            #print('made it to line 79 in train_sdss.py')
 
             loss = model.loss(spec, w, instrument=instrument, z=z)
 
-            print(f'loss before accelerator.backward achieved')
-            print(f'loss: {loss}')
+            #print(f'loss before accelerator.backward achieved')
+            #print(f'loss: {loss}')
 
             # potentially 
             # key problem can't run loss backwards...
-            print('spec:', spec)
-            print('w', w)
-            print('z', z)
+            #print('spec:', spec)
+            #print('w', w)
+            #print('z', z)
 
-            print(torch.isnan(spec).sum(), torch.isnan(w).sum(), torch.isnan(z).sum())
+            #print(torch.isnan(spec).sum(), torch.isnan(w).sum(), torch.isnan(z).sum())
             #quit()
 
             # loss is not working because it's nan (why?) this is what's messing up accelerator
@@ -107,10 +107,10 @@ def train(model, instrument, trainloader, validloader, n_epoch=200, n_batch=None
             # report shape inconsistencies in model file. 
 
             # reminds me of xspec install. 
-
+            print('about to accelerator.backward()')
             accelerator.backward(loss) # update: accelerator is likely not the one to blame...dataset is pretty small, so probably not a memory issue? 
-            print('made it past accelerator.backward(loss)')
-            quit()
+            #print('made it past accelerator.backward(loss)')
+            #quit()
 
 
             #print('about to backpropogate')
