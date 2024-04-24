@@ -31,3 +31,20 @@ for pickle_file in os.listdir(dir):
 ```
 accelerator = Accelerator(mixed_precision='fp16', cpu=True) # changed cpu to True? --> i reverted to having cpu=False
 ```
+
+## working on ginsburg version
+
+- commented out nflows in install requires because it threw this error on ginsberg installation: 
+```
+  File "/burg/home/tjk2147/.local/lib/python3.11/site-packages/nflows/nn/nde/__init__.py", line 1, in <module>
+    from nflows.nn.nde.made import MixtureOfGaussiansMADE
+
+ImportError: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.29' not found (required by /burg/opt/anaconda3-2023.09/lib/python3.11/site-packages/matplotlib/_path.cpython-311-x86_64-linux-gnu.so)
+slurmstepd: error: _cgroup_procs_check: failed on path /sys/fs/cgroup/memory/slurm/uid_555096/job_12815040/step_batch/cgroup.procs: No such file or directory
+slurmstepd: error: unable to read '/sys/fs/cgroup/memory/slurm/uid_555096/job_12815040/step_batch/cgroup.procs'
+```
+- also edited line of 4 of __init__.py for spender to comment out the .flow import NeuralDensityEstimator 
+
+-  also commented out the function "load_flow_model(filename, n_latent, **kwargs)" in __init__.py
+
+- this will be issue for normalizing flow outlier estimation later, but i think it might be okay for just training the model itself 

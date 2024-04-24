@@ -11,7 +11,6 @@ from torch import nn, optim
 from spender import SpectrumAutoencoder, SpeculatorActivation
 from spender.data.sdss import SDSS, BOSS
 
-
 def load_model(filename, model, instrument):
     device = instrument.wave_obs.device
     model_struct = torch.load(filename, map_location=device)
@@ -31,7 +30,8 @@ def load_model(filename, model, instrument):
     losses = model_struct['losses']
     return model, losses
 
-def train(model, instrument, trainloader, validloader, n_epoch=200, n_batch=None, outfile=None, losses=None, verbose=True, lr=3e-4): # verbose was false
+# fix: n_epoch and n_batch
+def train(model, instrument, trainloader, validloader, n_epoch=2, n_batch=2, outfile=None, losses=None, verbose=True, lr=3e-4): # verbose was false
 
     optimizer = optim.Adam(model.parameters(), lr=lr)
     scheduler = optim.lr_scheduler.OneCycleLR(optimizer, lr, total_steps=n_epoch)
@@ -123,8 +123,6 @@ def train(model, instrument, trainloader, validloader, n_epoch=200, n_batch=None
 
             print('was able to backpropogate!')
 
-            quit()
-
             train_loss += loss.item()
             n_sample += batch_size
             optimizer.step()
@@ -133,6 +131,7 @@ def train(model, instrument, trainloader, validloader, n_epoch=200, n_batch=None
             # stop after n_batch
             if n_batch is not None and k == n_batch - 1:
                 break
+
         train_loss /= n_sample
 
         with torch.no_grad():
@@ -158,6 +157,7 @@ def train(model, instrument, trainloader, validloader, n_epoch=200, n_batch=None
                 # stop after n_batch
                 if n_batch is not None and k == n_batch - 1:
                     break
+
             valid_loss /= n_sample
 
         scheduler.step()

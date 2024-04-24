@@ -1,0 +1,9 @@
+/burg/opt/anaconda3-2023.09/lib/python3.11/site-packages/transformers/utils/generic.py:260: UserWarning: torch.utils._pytree._register_pytree_node is deprecated. Please use torch.utils._pytree.register_pytree_node instead.
+  torch.utils._pytree._register_pytree_node(
+Detected kernel version 4.18.0, which is below the recommended minimum of 5.5.0; this can cause the process to hang. It is recommended to upgrade the kernel to the minimum version or higher.
+/burg/home/tjk2147/.local/lib/python3.11/site-packages/torch/nn/modules/conv.py:306: UserWarning: Attempt to open cnn_infer failed: handle=0 error: libcudnn_cnn_infer.so.8: cannot open shared object file: No such file or directory (Triggered internally at ../aten/src/ATen/native/cudnn/Conv_v8.cpp:78.)
+  return F.conv1d(input, weight, bias, self.stride,
+/cm/local/apps/slurm/var/spool/job12815656/slurm_script: line 28: 2248265 Killed                  python /burg/home/tjk2147/src/GitHub/spender/train/train_sdss.py '/burg/home/tjk2147/src/GitHub/spender/train' '/burg/home/tjk2147/src/GitHub/spender/train/checkpoint.pt'
+slurmstepd: error: Detected 1 oom-kill event(s) in StepId=12815656.batch. Some of your processes may have been killed by the cgroup out-of-memory handler.
+slurmstepd: error: _cgroup_procs_check: failed on path /sys/fs/cgroup/memory/slurm/uid_555096/job_12815656/step_batch/cgroup.procs: No such file or directory
+slurmstepd: error: unable to read '/sys/fs/cgroup/memory/slurm/uid_555096/job_12815656/step_batch/cgroup.procs'

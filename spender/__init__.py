@@ -1,7 +1,7 @@
 import torch
 import torch.hub
 
-from .flow import NeuralDensityEstimator
+#from .flow import NeuralDensityEstimator
 from .instrument import LSF, Instrument
 from .model import (MLP, SpectrumAutoencoder, SpectrumDecoder, SpectrumEncoder,
                     SpeculatorActivation)
@@ -87,6 +87,7 @@ def load_model(filename, instrument, **kwargs):
 
     return model
 
+'''
 def load_flow_model(filename, n_latent, **kwargs):
     nde = NeuralDensityEstimator(
         dim=n_latent,
@@ -101,3 +102,4 @@ def load_flow_model(filename, n_latent, **kwargs):
         model_struct = torch.load(filename, **kwargs)
     nde.load_state_dict(model_struct)
     return nde
+'''
