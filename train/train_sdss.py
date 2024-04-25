@@ -5,7 +5,7 @@ import os
 
 import numpy as np
 import torch
-from accelerate import Accelerator
+#from accelerate import Accelerator
 from torch import nn, optim
 
 from spender import SpectrumAutoencoder, SpeculatorActivation
@@ -38,8 +38,8 @@ def train(model, instrument, trainloader, validloader, n_epoch=2, n_batch=2, out
 
 
     # removing accelerator for a test 
-    accelerator = Accelerator(mixed_precision='fp16') # change cpu to True? --> trying to get mps to work so not yet --> turned cpu off for ginsberg test 
-    model, instrument, trainloader, validloader, optimizer = accelerator.prepare(model, instrument, trainloader, validloader, optimizer)
+    #accelerator = Accelerator(mixed_precision='fp16') # change cpu to True? --> trying to get mps to work so not yet --> turned cpu off for ginsberg test 
+    #model, instrument, trainloader, validloader, optimizer = accelerator.prepare(model, instrument, trainloader, validloader, optimizer)
 
     # device is confirmed on cpu (confirmed)
 
@@ -107,19 +107,19 @@ def train(model, instrument, trainloader, validloader, n_epoch=2, n_batch=2, out
             # report shape inconsistencies in model file. 
 
             # reminds me of xspec install. 
-            print('about to accelerator.backward()')
-            accelerator.backward(loss) # update: accelerator is likely not the one to blame...dataset is pretty small, so probably not a memory issue? 
+            #print('about to accelerator.backward()')
+            #accelerator.backward(loss) # update: accelerator is likely not the one to blame...dataset is pretty small, so probably not a memory issue? 
             #print('made it past accelerator.backward(loss)')
             #quit()
 
 
-            #print('about to backpropogate')
+            print('about to backpropogate')
             
-            #loss.backward()
+            loss.backward()
 
-            #print('about to step optimizer')
+            print('about to step optimizer')
 
-            #optimizer.step()
+            optimizer.step()
 
             print('was able to backpropogate!')
 
